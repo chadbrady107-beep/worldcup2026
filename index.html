@@ -78,33 +78,29 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
 
 /* BRACKET */
 .bkt-wrap{overflow-x:auto;padding-bottom:16px;}
-.bkt-grid{display:flex;gap:0;min-width:950px;}
-.bkt-col{display:flex;flex-direction:column;position:relative;}
-.bkt-col-inner{display:flex;flex-direction:column;width:172px;padding:0 6px;}
-.bkt-rtitle{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:.6px;text-align:center;margin-bottom:10px;text-transform:uppercase;padding:0 6px;}
-
-/* BRACKET MATCH CARD */
+.bkt-grid{display:flex;gap:0;min-width:1000px;}
+.bkt-col{display:flex;flex-direction:column;width:185px;flex-shrink:0;padding:0 5px;}
+.bkt-rtitle{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:.6px;text-align:center;margin-bottom:10px;text-transform:uppercase;}
 .bm{background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;font-size:11px;margin-bottom:6px;}
 .bm.has-winner{border-color:rgba(200,168,75,0.3);}
-.bt{display:flex;align-items:center;gap:5px;padding:0 8px;min-height:30px;border-bottom:1px solid var(--border);position:relative;}
+.bt{display:flex;align-items:center;gap:5px;padding:4px 8px;min-height:34px;border-bottom:1px solid var(--border);position:relative;}
 .bt:last-child{border-bottom:none;}
 .bt.win{background:rgba(200,168,75,0.1);}
 .bt.win .bt-name{color:var(--gold2);font-weight:600;}
-.bt.loss{opacity:0.45;}
-.bt-flag{flex-shrink:0;font-size:13px;}
-.bt-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text2);}
-.bt-name.active{color:var(--text);}
+.bt.loss{opacity:0.4;}
+.bt-flag{flex-shrink:0;font-size:13px;line-height:1;}
+.bt-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;}
+.bt-name{font-size:11px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.2;}
+.bt-name.dim{color:var(--text2);}
+.bt-seed{font-size:9px;color:var(--text3);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bt-seed.gold{color:rgba(200,168,75,0.7);}
 .bt-score-wrap{display:flex;align-items:center;gap:2px;flex-shrink:0;}
 .bt-score{width:26px;height:22px;background:var(--bg3);border:1px solid var(--border2);border-radius:4px;color:var(--text);font-size:11px;font-weight:700;text-align:center;outline:none;padding:0;}
 .bt-score:focus{border-color:var(--gold);}
-.bt-score:disabled{opacity:0.3;cursor:default;}
-.bt-sep{color:var(--text3);font-size:10px;font-weight:700;}
-.bt-tbd{color:var(--text3);font-style:italic;font-size:10px;padding:7px 8px;min-height:30px;display:flex;align-items:center;border-bottom:1px solid var(--border);}
+.bt-score:disabled{opacity:0.25;cursor:default;}
+.bt-tbd{color:var(--text3);font-style:italic;font-size:10px;padding:6px 8px;min-height:34px;display:flex;align-items:center;border-bottom:1px solid var(--border);}
 .bt-tbd:last-child{border-bottom:none;}
-
-/* connector lines between rounds */
-.bkt-connectors{position:absolute;top:0;right:-6px;width:12px;height:100%;pointer-events:none;}
-
+.bt-tbd-seed{font-size:9px;color:var(--text3);display:block;margin-top:1px;font-style:normal;}
 .note{font-size:11px;color:var(--text3);margin-top:14px;padding-top:12px;border-top:1px solid var(--border);}
 ::-webkit-scrollbar{width:5px;height:5px;}
 ::-webkit-scrollbar-track{background:var(--bg2);}
@@ -197,18 +193,36 @@ const GROUPS={
 const PAIRS=[[0,1],[2,3],[0,2],[1,3],[0,3],[1,2]];
 
 let scores={};
-// knockout[round][matchIndex] = {h:{name,flag}, a:{name,flag}, hs:null, as:null}
-// rounds: r32(16 matches), r16(8), qf(4), sf(2), final(1)
 let knockout={r32:[],r16:[],qf:[],sf:[],final:[]};
 
 const ROUND_SIZES={r32:16,r16:8,qf:4,sf:2,final:1};
 const ROUND_KEYS=['r32','r16','qf','sf','final'];
 const ROUND_LABELS={r32:'Round of 32',r16:'Round of 16',qf:'Quarterfinals',sf:'Semifinals',final:'🏆 Final'};
 
+// Seed labels for each R32 slot [home, away]
+const R32_SEEDS=[
+  ['Group A — 1st','3rd (C/E/F/H/I)'],
+  ['Group B — 2nd','Group A — 2nd'],
+  ['Group C — 1st','3rd (D/E/F/G)'],
+  ['Group D — 1st','Group C — 2nd'],
+  ['Group E — 1st','Group F — 2nd'],
+  ['Group B — 1st','3rd (A/D/E/G)'],
+  ['Group F — 1st','Group G — 2nd'],
+  ['Group G — 1st','Group H — 2nd'],
+  ['Group H — 1st','Group I — 2nd'],
+  ['Group I — 1st','Group J — 2nd'],
+  ['Group J — 1st','Group K — 2nd'],
+  ['Group K — 1st','Group L — 2nd'],
+  ['Group L — 1st','3rd (A/B/C/D)'],
+  ['3rd (I/J/K/L)','Group D — 2nd'],
+  ['3rd (B/H/J/L)','Group E — 2nd'],
+  ['3rd (F/G/H/K)','Group L — 2nd']
+];
+
 function initScores(){const s={};Object.keys(GROUPS).forEach(g=>{s[g]=PAIRS.map(()=>({h:null,a:null}));});return s;}
 function initKnockout(){
   const k={};
-  ROUND_KEYS.forEach(r=>{k[r]=Array(ROUND_SIZES[r]).fill(null).map(()=>({h:null,a:null,hs:null,as:null}));});
+  ROUND_KEYS.forEach(r=>{k[r]=Array(ROUND_SIZES[r]).fill(null).map(()=>({h:null,a:null,hs:null,as:null,hseed:null,aseed:null}));});
   return k;
 }
 
@@ -220,7 +234,6 @@ function setSyncStatus(state,msg){
   txt.textContent=msg||(state==='ok'?'Live — synced':state==='saving'?'Saving...':state==='err'?'Connection error':'Connecting...');
 }
 
-// Listen for group scores
 scoresRef.on('value',snap=>{
   const data=snap.val();
   const fresh=initScores();
@@ -233,15 +246,12 @@ scoresRef.on('value',snap=>{
   if(document.getElementById('panel-bracket').classList.contains('active'))renderBracket();
 },()=>setSyncStatus('err'));
 
-// Listen for knockout data
 knockoutRef.on('value',snap=>{
   const data=snap.val();
   const fresh=initKnockout();
   if(data){
     ROUND_KEYS.forEach(r=>{
-      if(data[r]){
-        data[r].forEach((m,i)=>{if(m&&fresh[r][i]!==undefined)fresh[r][i]=Object.assign(fresh[r][i],m);});
-      }
+      if(data[r]){data[r].forEach((m,i)=>{if(m&&fresh[r][i]!==undefined)fresh[r][i]=Object.assign(fresh[r][i],m);});}
     });
   }
   knockout=fresh;
@@ -254,14 +264,11 @@ function schedSave(){
   setSyncStatus('saving');
   if(saveTimer)clearTimeout(saveTimer);
   saveTimer=setTimeout(()=>{
-    Promise.all([
-      scoresRef.set(scores),
-      knockoutRef.set(knockout)
-    ]).then(()=>setSyncStatus('ok')).catch(()=>setSyncStatus('err','Save failed'));
+    Promise.all([scoresRef.set(scores),knockoutRef.set(knockout)])
+      .then(()=>setSyncStatus('ok')).catch(()=>setSyncStatus('err','Save failed'));
   },600);
 }
 
-// GROUP STAGE LOGIC
 function computeStandings(g){
   const{teams,flags}=GROUPS[g];
   const st=teams.map((name,i)=>({name,flag:flags[i],idx:i,p:0,w:0,d:0,l:0,gf:0,ga:0,gd:0,pts:0}));
@@ -284,74 +291,63 @@ function getThirds(){
     .sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf||a.name.localeCompare(b.name));
 }
 
-function teamObj(t){return t?{name:t.name,flag:t.flag||''}:null;}
+function teamObj(t,seed){return t?{name:t.name,flag:t.flag||'',seed:seed||''}:null;}
 
-// Sync R32 seeds from group results into knockout.r32
 function syncR32FromGroups(){
   if(!knockout.r32||knockout.r32.length!==16)return;
   const q={};
   Object.keys(GROUPS).forEach(g=>{const st=computeStandings(g);q[g]={first:st[0],second:st[1]};});
   const thirds=getThirds();
   let ti=0;
-  function nt(){return thirds[ti]&&thirds[ti].p>0?teamObj(thirds[ti++]):(ti++,null);}
-  ti=0;
+  function nt(label){const t=thirds[ti++];return t&&t.p>0?teamObj(t,label):null;}
 
-  // Official R32 seeding layout
   const seeds=[
-    [teamObj(q.A.first),nt()],
-    [teamObj(q.B.second),teamObj(q.A.second)],
-    [teamObj(q.C.first),nt()],
-    [teamObj(q.D.first),teamObj(q.C.second)],
-    [teamObj(q.E.first),teamObj(q.F.second)],
-    [teamObj(q.B.first),nt()],
-    [teamObj(q.F.first),teamObj(q.G.second)],
-    [teamObj(q.G.first),teamObj(q.H.second)],
-    [teamObj(q.H.first),teamObj(q.I.second)],
-    [teamObj(q.I.first),teamObj(q.J.second)],
-    [teamObj(q.J.first),teamObj(q.K.second)],
-    [teamObj(q.K.first),teamObj(q.L.second)],
-    [teamObj(q.L.first),nt()],
-    [nt(),teamObj(q.D.second)],
-    [nt(),teamObj(q.E.second)],
-    [nt(),teamObj(q.L.second)]
+    [teamObj(q.A.first,'Group A — 1st'), nt('3rd (C/E/F/H/I)')],
+    [teamObj(q.B.second,'Group B — 2nd'), teamObj(q.A.second,'Group A — 2nd')],
+    [teamObj(q.C.first,'Group C — 1st'), nt('3rd (D/E/F/G)')],
+    [teamObj(q.D.first,'Group D — 1st'), teamObj(q.C.second,'Group C — 2nd')],
+    [teamObj(q.E.first,'Group E — 1st'), teamObj(q.F.second,'Group F — 2nd')],
+    [teamObj(q.B.first,'Group B — 1st'), nt('3rd (A/D/E/G)')],
+    [teamObj(q.F.first,'Group F — 1st'), teamObj(q.G.second,'Group G — 2nd')],
+    [teamObj(q.G.first,'Group G — 1st'), teamObj(q.H.second,'Group H — 2nd')],
+    [teamObj(q.H.first,'Group H — 1st'), teamObj(q.I.second,'Group I — 2nd')],
+    [teamObj(q.I.first,'Group I — 1st'), teamObj(q.J.second,'Group J — 2nd')],
+    [teamObj(q.J.first,'Group J — 1st'), teamObj(q.K.second,'Group K — 2nd')],
+    [teamObj(q.K.first,'Group K — 1st'), teamObj(q.L.second,'Group L — 2nd')],
+    [teamObj(q.L.first,'Group L — 1st'), nt('3rd (A/B/C/D)')],
+    [nt('3rd (I/J/K/L)'), teamObj(q.D.second,'Group D — 2nd')],
+    [nt('3rd (B/H/J/L)'), teamObj(q.E.second,'Group E — 2nd')],
+    [nt('3rd (F/G/H/K)'), teamObj(q.L.second,'Group L — 2nd')]
   ];
 
   seeds.forEach(([h,a],i)=>{
-    // Only update team slots, preserve scores
     knockout.r32[i].h=h;
     knockout.r32[i].a=a;
   });
-
-  // Propagate winners into subsequent rounds
   propagateWinners();
 }
 
-// Determine winner of a knockout match
 function getWinner(m){
   if(!m||m.hs===null||m.as===null)return null;
   if(parseInt(m.hs)>parseInt(m.as))return m.h;
   if(parseInt(m.as)>parseInt(m.hs))return m.a;
-  return null; // draw — no winner yet (extra time/pens handled manually)
+  return null;
 }
 
-// Push winners forward through rounds
 function propagateWinners(){
-  const roundOrder=['r32','r16','qf','sf'];
   const nextRound={r32:'r16',r16:'qf',qf:'sf',sf:'final'};
-  roundOrder.forEach(r=>{
+  ['r32','r16','qf','sf'].forEach(r=>{
     const nr=nextRound[r];
     knockout[r].forEach((m,i)=>{
       const winner=getWinner(m);
       const destMatch=Math.floor(i/2);
       const destSlot=i%2===0?'h':'a';
       if(knockout[nr][destMatch]){
-        // Only update if winner changed to avoid overwriting manual edits
         const current=knockout[nr][destMatch][destSlot];
         const winnerName=winner?winner.name:null;
         const currentName=current?current.name:null;
         if(winnerName!==currentName){
           knockout[nr][destMatch][destSlot]=winner;
-          // Clear score of next match if team changed
           knockout[nr][destMatch].hs=null;
           knockout[nr][destMatch].as=null;
         }
@@ -361,8 +357,7 @@ function propagateWinners(){
 }
 
 function setKnockoutScore(round,matchIdx,side,val){
-  const num=val===''?null:Math.max(0,parseInt(val)||0);
-  knockout[round][matchIdx][side+'s']=num;
+  knockout[round][matchIdx][side+'s']=val===''?null:Math.max(0,parseInt(val)||0);
   propagateWinners();
   schedSave();
   renderBracket();
@@ -373,13 +368,9 @@ function setGroupScore(g,mi,side,val){
   schedSave();
   refreshGroupCard(g);
   if(document.getElementById('panel-third').classList.contains('active'))renderThird();
-  if(document.getElementById('panel-bracket').classList.contains('active')){
-    syncR32FromGroups();
-    renderBracket();
-  }
+  if(document.getElementById('panel-bracket').classList.contains('active')){syncR32FromGroups();renderBracket();}
 }
 
-// GROUP RENDERING
 function renderGroupCard(g){
   const st=computeStandings(g);
   const sc=scores[g]||PAIRS.map(()=>({h:null,a:null}));
@@ -436,7 +427,6 @@ function refreshGroupCard(g){
   }
 }
 
-// THIRD PLACE
 function renderThird(){
   const c=document.getElementById('third-container');
   if(!c)return;
@@ -454,32 +444,41 @@ function renderThird(){
   </tr>`).join('')}</tbody></table>`;
 }
 
-// BRACKET RENDERING
 function renderBracket(){
   const c=document.getElementById('bracket-container');
   if(!c)return;
 
-  // Vertical spacing per round so matches align nicely
   const spacingTop={r32:0,r16:19,qf:57,sf:133,final:285};
   const spacingBetween={r32:6,r16:44,qf:108,sf:234,final:0};
 
-  function renderTeamRow(team, score, round, matchIdx, side, opponentHasScore){
-    const isWinner = team && score !== null && opponentHasScore && parseInt(score) > opponentHasScore;
-    const isLoser  = team && score !== null && opponentHasScore !== null && parseInt(score) < opponentHasScore;
+  function renderTeamRow(team, score, round, matchIdx, side, oppScore, isR32, seedLabel){
+    const hasScore = score !== null && oppScore !== null;
+    const isWinner = hasScore && parseInt(score) > parseInt(oppScore);
+    const isLoser  = hasScore && parseInt(score) < parseInt(oppScore);
     const hasTeam  = team && team.name;
-    const scoreVal = score !== null ? score : '';
-    const canInput = hasTeam;
 
-    if(!hasTeam){
-      return `<div class="bt-tbd">TBD</div>`;
+    // In R32, show seed label if team not yet known; once known show their actual seed
+    const displaySeed = hasTeam ? (team.seed || seedLabel || '') : (seedLabel || '');
+    const isTBD = !hasTeam;
+
+    if(isTBD){
+      return `<div class="bt-tbd">
+        <div>
+          <span>TBD</span>
+          ${displaySeed ? `<span class="bt-tbd-seed">${displaySeed}</span>` : ''}
+        </div>
+      </div>`;
     }
+
     return `<div class="bt${isWinner?' win':''}${isLoser?' loss':''}">
       <span class="bt-flag">${team.flag||''}</span>
-      <span class="bt-name${hasTeam?' active':''}">${team.name}</span>
+      <div class="bt-info">
+        <span class="bt-name${!hasTeam?' dim':''}">${team.name}</span>
+        ${displaySeed ? `<span class="bt-seed${isWinner?' gold':''}">${displaySeed}</span>` : ''}
+      </div>
       <div class="bt-score-wrap">
         <input class="bt-score" type="number" min="0" max="99" placeholder="-"
-          value="${scoreVal}"
-          ${!canInput?'disabled':''}
+          value="${score !== null ? score : ''}"
           oninput="setKnockoutScore('${round}',${matchIdx},'${side}',this.value)">
       </div>
     </div>`;
@@ -487,31 +486,32 @@ function renderBracket(){
 
   function renderMatch(m, round, matchIdx){
     if(!m) return '';
-    const hs = m.hs !== null ? parseInt(m.hs) : null;
-    const as = m.as !== null ? parseInt(m.as) : null;
+    const hs = m.hs !== null ? m.hs : null;
+    const as = m.as !== null ? m.as : null;
     const hasScore = hs !== null && as !== null;
-    const hRow = renderTeamRow(m.h, m.hs, round, matchIdx, 'h', hasScore ? as : null);
-    const aRow = renderTeamRow(m.a, m.as, round, matchIdx, 'a', hasScore ? hs : null);
+    const isR32 = round === 'r32';
+    const hSeed = isR32 ? R32_SEEDS[matchIdx][0] : '';
+    const aSeed = isR32 ? R32_SEEDS[matchIdx][1] : '';
+    const hRow = renderTeamRow(m.h, hs, round, matchIdx, 'h', as, isR32, hSeed);
+    const aRow = renderTeamRow(m.a, as, round, matchIdx, 'a', hs, isR32, aSeed);
     return `<div class="bm${hasScore?' has-winner':''}">${hRow}${aRow}</div>`;
   }
 
-  let html = '<div class="bkt-grid">';
+  let html='<div class="bkt-grid">';
   ROUND_KEYS.forEach(r=>{
-    const matches = knockout[r]||[];
-    const st = spacingTop[r];
-    const sb = spacingBetween[r];
-    html += `<div class="bkt-col">
+    const matches=knockout[r]||[];
+    html+=`<div class="bkt-col">
       <div class="bkt-rtitle">${ROUND_LABELS[r]}</div>
-      <div style="height:${st}px;flex-shrink:0;"></div>`;
+      <div style="height:${spacingTop[r]}px;flex-shrink:0;"></div>`;
     matches.forEach((m,i)=>{
-      html += renderMatch(m,r,i);
-      if(i < matches.length-1) html += `<div style="height:${sb}px;flex-shrink:0;"></div>`;
+      html+=renderMatch(m,r,i);
+      if(i<matches.length-1)html+=`<div style="height:${spacingBetween[r]}px;flex-shrink:0;"></div>`;
     });
-    html += '</div>';
+    html+='</div>';
   });
-  html += '</div>';
-  html += `<p class="note">Winners auto-advance when a score is entered. For matches decided by penalties, enter the score after extra time and manually set the winner's score one higher.</p>`;
-  c.innerHTML = html;
+  html+='</div>';
+  html+=`<p class="note">Winners auto-advance when a score is entered. For matches decided by penalties, enter the score after extra time and set the winning team's score one higher.</p>`;
+  c.innerHTML=html;
 }
 
 function showPanel(id,btn){
