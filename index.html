@@ -199,24 +199,24 @@ const ROUND_SIZES={r32:16,r16:8,qf:4,sf:2,final:1};
 const ROUND_KEYS=['r32','r16','qf','sf','final'];
 const ROUND_LABELS={r32:'Round of 32',r16:'Round of 16',qf:'Quarterfinals',sf:'Semifinals',final:'🏆 Final'};
 
-// Seed labels for each R32 slot [home, away]
+// Official FIFA 2026 R32 seedings [home, away] — top to bottom per official bracket
 const R32_SEEDS=[
-  ['Group A — 1st','3rd (C/E/F/H/I)'],
-  ['Group B — 2nd','Group A — 2nd'],
-  ['Group C — 1st','3rd (D/E/F/G)'],
-  ['Group D — 1st','Group C — 2nd'],
-  ['Group E — 1st','Group F — 2nd'],
-  ['Group B — 1st','3rd (A/D/E/G)'],
-  ['Group F — 1st','Group G — 2nd'],
-  ['Group G — 1st','Group H — 2nd'],
-  ['Group H — 1st','Group I — 2nd'],
-  ['Group I — 1st','Group J — 2nd'],
-  ['Group J — 1st','Group K — 2nd'],
-  ['Group K — 1st','Group L — 2nd'],
-  ['Group L — 1st','3rd (A/B/C/D)'],
-  ['3rd (I/J/K/L)','Group D — 2nd'],
-  ['3rd (B/H/J/L)','Group E — 2nd'],
-  ['3rd (F/G/H/K)','Group L — 2nd']
+  ['Group E — 1st','3rd (A/B/C/D/F)'],   // Match 1
+  ['Group I — 1st','3rd (C/D/F/G/H)'],   // Match 2
+  ['Group A — 2nd','Group B — 2nd'],      // Match 3
+  ['Group F — 1st','Group C — 2nd'],      // Match 4
+  ['Group K — 2nd','Group L — 2nd'],      // Match 5
+  ['Group H — 1st','Group J — 2nd'],      // Match 6
+  ['Group D — 1st','3rd (B/E/F/I/J)'],   // Match 7
+  ['Group G — 1st','3rd (A/E/H/I/J)'],   // Match 8
+  ['Group C — 1st','Group F — 2nd'],      // Match 9
+  ['Group E — 2nd','Group I — 2nd'],      // Match 10
+  ['Group A — 1st','3rd (C/E/F/H/I)'],   // Match 11
+  ['Group L — 1st','3rd (E/H/I/J/K)'],   // Match 12
+  ['Group J — 1st','Group H — 2nd'],      // Match 13
+  ['Group D — 2nd','Group G — 2nd'],      // Match 14
+  ['Group B — 1st','3rd (D/E/F/G/J)'],   // Match 15
+  ['Group K — 1st','3rd (D/E/I/J/L)']    // Match 16
 ];
 
 function initScores(){const s={};Object.keys(GROUPS).forEach(g=>{s[g]=PAIRS.map(()=>({h:null,a:null}));});return s;}
@@ -302,22 +302,22 @@ function syncR32FromGroups(){
   function nt(label){const t=thirds[ti++];return t&&t.p>0?teamObj(t,label):null;}
 
   const seeds=[
-    [teamObj(q.A.first,'Group A — 1st'), nt('3rd (C/E/F/H/I)')],
-    [teamObj(q.B.second,'Group B — 2nd'), teamObj(q.A.second,'Group A — 2nd')],
-    [teamObj(q.C.first,'Group C — 1st'), nt('3rd (D/E/F/G)')],
-    [teamObj(q.D.first,'Group D — 1st'), teamObj(q.C.second,'Group C — 2nd')],
-    [teamObj(q.E.first,'Group E — 1st'), teamObj(q.F.second,'Group F — 2nd')],
-    [teamObj(q.B.first,'Group B — 1st'), nt('3rd (A/D/E/G)')],
-    [teamObj(q.F.first,'Group F — 1st'), teamObj(q.G.second,'Group G — 2nd')],
-    [teamObj(q.G.first,'Group G — 1st'), teamObj(q.H.second,'Group H — 2nd')],
-    [teamObj(q.H.first,'Group H — 1st'), teamObj(q.I.second,'Group I — 2nd')],
-    [teamObj(q.I.first,'Group I — 1st'), teamObj(q.J.second,'Group J — 2nd')],
-    [teamObj(q.J.first,'Group J — 1st'), teamObj(q.K.second,'Group K — 2nd')],
-    [teamObj(q.K.first,'Group K — 1st'), teamObj(q.L.second,'Group L — 2nd')],
-    [teamObj(q.L.first,'Group L — 1st'), nt('3rd (A/B/C/D)')],
-    [nt('3rd (I/J/K/L)'), teamObj(q.D.second,'Group D — 2nd')],
-    [nt('3rd (B/H/J/L)'), teamObj(q.E.second,'Group E — 2nd')],
-    [nt('3rd (F/G/H/K)'), teamObj(q.L.second,'Group L — 2nd')]
+    [teamObj(q.E.first,'Group E — 1st'),  nt('3rd (A/B/C/D/F)')],
+    [teamObj(q.I.first,'Group I — 1st'),  nt('3rd (C/D/F/G/H)')],
+    [teamObj(q.A.second,'Group A — 2nd'), teamObj(q.B.second,'Group B — 2nd')],
+    [teamObj(q.F.first,'Group F — 1st'),  teamObj(q.C.second,'Group C — 2nd')],
+    [teamObj(q.K.second,'Group K — 2nd'),teamObj(q.L.second,'Group L — 2nd')],
+    [teamObj(q.H.first,'Group H — 1st'),  teamObj(q.J.second,'Group J — 2nd')],
+    [teamObj(q.D.first,'Group D — 1st'),  nt('3rd (B/E/F/I/J)')],
+    [teamObj(q.G.first,'Group G — 1st'),  nt('3rd (A/E/H/I/J)')],
+    [teamObj(q.C.first,'Group C — 1st'),  teamObj(q.F.second,'Group F — 2nd')],
+    [teamObj(q.E.second,'Group E — 2nd'), teamObj(q.I.second,'Group I — 2nd')],
+    [teamObj(q.A.first,'Group A — 1st'),  nt('3rd (C/E/F/H/I)')],
+    [teamObj(q.L.first,'Group L — 1st'),  nt('3rd (E/H/I/J/K)')],
+    [teamObj(q.J.first,'Group J — 1st'),  teamObj(q.H.second,'Group H — 2nd')],
+    [teamObj(q.D.second,'Group D — 2nd'),teamObj(q.G.second,'Group G — 2nd')],
+    [teamObj(q.B.first,'Group B — 1st'),  nt('3rd (D/E/F/G/J)')],
+    [teamObj(q.K.first,'Group K — 1st'),  nt('3rd (D/E/I/J/L)')]
   ];
 
   seeds.forEach(([h,a],i)=>{
