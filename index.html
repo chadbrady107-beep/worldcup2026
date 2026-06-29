@@ -201,22 +201,22 @@ const ROUND_LABELS={r32:'Round of 32',r16:'Round of 16',qf:'Quarterfinals',sf:'S
 
 // Official FIFA 2026 R32 seedings [home, away] — top to bottom per official bracket
 const R32_SEEDS=[
-  ['Group E — 1st','3rd (A/B/C/D/F)'],   // Match 1
-  ['Group I — 1st','3rd (C/D/F/G/H)'],   // Match 2
-  ['Group A — 2nd','Group B — 2nd'],      // Match 3
-  ['Group F — 1st','Group C — 2nd'],      // Match 4
-  ['Group K — 2nd','Group L — 2nd'],      // Match 5
-  ['Group H — 1st','Group J — 2nd'],      // Match 6
-  ['Group D — 1st','3rd (B/E/F/I/J)'],   // Match 7
-  ['Group G — 1st','3rd (A/E/H/I/J)'],   // Match 8
-  ['Group C — 1st','Group F — 2nd'],      // Match 9
-  ['Group E — 2nd','Group I — 2nd'],      // Match 10
-  ['Group A — 1st','3rd (C/E/F/H/I)'],   // Match 11
-  ['Group L — 1st','3rd (E/H/I/J/K)'],   // Match 12
-  ['Group J — 1st','Group H — 2nd'],      // Match 13
-  ['Group D — 2nd','Group G — 2nd'],      // Match 14
-  ['Group B — 1st','3rd (D/E/F/G/J)'],   // Match 15
-  ['Group K — 1st','3rd (D/E/I/J/L)']    // Match 16
+  ['Group E — 1st','Group E — 2nd'],      // Germany vs Paraguay (Match 1)
+  ['Group I — 1st','Group I — 2nd'],      // France vs Sweden (Match 2)
+  ['3rd place','Group B — 2nd'],          // S.Africa vs Canada (Match 3)
+  ['Group F — 1st','3rd place'],          // Netherlands vs Morocco (Match 4)
+  ['Group K — 1st','Group L — 2nd'],      // Portugal vs Croatia (Match 5)
+  ['Group H — 1st','Group J — 2nd'],      // Spain vs Austria (Match 6)
+  ['Group D — 1st','Group B — 1st'],      // USA vs Bosnia & Herz. (Match 7)
+  ['Group G — 1st','Group I — 2nd'],      // Belgium vs Senegal (Match 8)
+  ['Group C — 1st','Group F — 2nd'],      // Brazil vs Japan (Match 9)
+  ['Group E — 2nd','Group I — 2nd'],      // Ivory Coast vs Norway (Match 10)
+  ['Group A — 1st','3rd place'],          // Mexico vs Ecuador (Match 11)
+  ['Group L — 1st','3rd place'],          // England vs DR Congo (Match 12)
+  ['Group J — 1st','3rd place'],          // Argentina vs Cape Verde (Match 13)
+  ['Group D — 2nd','Group G — 2nd'],      // Australia vs Egypt (Match 14)
+  ['Group B — 1st','3rd place'],          // Switzerland vs Algeria (Match 15)
+  ['Group K — 2nd','Group L — 2nd']       // Colombia vs Ghana (Match 16)
 ];
 
 function initScores(){const s={};Object.keys(GROUPS).forEach(g=>{s[g]=PAIRS.map(()=>({h:null,a:null}));});return s;}
@@ -302,22 +302,22 @@ function syncR32FromGroups(){
   function nt(label){const t=thirds[ti++];return t&&t.p>0?teamObj(t,label):null;}
 
   const seeds=[
-    [teamObj(q.E.first,'Group E — 1st'),  nt('3rd (A/B/C/D/F)')],
-    [teamObj(q.I.first,'Group I — 1st'),  nt('3rd (C/D/F/G/H)')],
-    [teamObj(q.A.second,'Group A — 2nd'), teamObj(q.B.second,'Group B — 2nd')],
-    [teamObj(q.F.first,'Group F — 1st'),  teamObj(q.C.second,'Group C — 2nd')],
-    [teamObj(q.K.second,'Group K — 2nd'),teamObj(q.L.second,'Group L — 2nd')],
-    [teamObj(q.H.first,'Group H — 1st'),  teamObj(q.J.second,'Group J — 2nd')],
-    [teamObj(q.D.first,'Group D — 1st'),  nt('3rd (B/E/F/I/J)')],
-    [teamObj(q.G.first,'Group G — 1st'),  nt('3rd (A/E/H/I/J)')],
-    [teamObj(q.C.first,'Group C — 1st'),  teamObj(q.F.second,'Group F — 2nd')],
-    [teamObj(q.E.second,'Group E — 2nd'), teamObj(q.I.second,'Group I — 2nd')],
-    [teamObj(q.A.first,'Group A — 1st'),  nt('3rd (C/E/F/H/I)')],
-    [teamObj(q.L.first,'Group L — 1st'),  nt('3rd (E/H/I/J/K)')],
-    [teamObj(q.J.first,'Group J — 1st'),  teamObj(q.H.second,'Group H — 2nd')],
-    [teamObj(q.D.second,'Group D — 2nd'),teamObj(q.G.second,'Group G — 2nd')],
-    [teamObj(q.B.first,'Group B — 1st'),  nt('3rd (D/E/F/G/J)')],
-    [teamObj(q.K.first,'Group K — 1st'),  nt('3rd (D/E/I/J/L)')]
+    [teamObj(q.E.first,'Group E — 1st'),   teamObj(q.E.second,'Group E — 2nd')],  // Germany vs Paraguay
+    [teamObj(q.I.first,'Group I — 1st'),   teamObj(q.I.second,'Group I — 2nd')],  // France vs Sweden
+    [nt('3rd place'),                       teamObj(q.B.second,'Group B — 2nd')],  // S.Africa vs Canada
+    [teamObj(q.F.first,'Group F — 1st'),   nt('3rd place')],                       // Netherlands vs Morocco
+    [teamObj(q.K.first,'Group K — 1st'),   teamObj(q.L.second,'Group L — 2nd')],  // Portugal vs Croatia
+    [teamObj(q.H.first,'Group H — 1st'),   teamObj(q.J.second,'Group J — 2nd')],  // Spain vs Austria
+    [teamObj(q.D.first,'Group D — 1st'),   teamObj(q.B.first,'Group B — 1st')],   // USA vs Bosnia & Herz.
+    [teamObj(q.G.first,'Group G — 1st'),   teamObj(q.I.second,'Group I — 2nd')],  // Belgium vs Senegal
+    [teamObj(q.C.first,'Group C — 1st'),   teamObj(q.F.second,'Group F — 2nd')],  // Brazil vs Japan
+    [teamObj(q.E.second,'Group E — 2nd'),  teamObj(q.I.second,'Group I — 2nd')],  // Ivory Coast vs Norway
+    [teamObj(q.A.first,'Group A — 1st'),   nt('3rd place')],                       // Mexico vs Ecuador
+    [teamObj(q.L.first,'Group L — 1st'),   nt('3rd place')],                       // England vs DR Congo
+    [teamObj(q.J.first,'Group J — 1st'),   nt('3rd place')],                       // Argentina vs Cape Verde
+    [teamObj(q.D.second,'Group D — 2nd'),  teamObj(q.G.second,'Group G — 2nd')],  // Australia vs Egypt
+    [teamObj(q.B.first,'Group B — 1st'),   nt('3rd place')],                       // Switzerland vs Algeria
+    [teamObj(q.K.second,'Group K — 2nd'),  teamObj(q.L.second,'Group L — 2nd')]   // Colombia vs Ghana
   ];
 
   seeds.forEach(([h,a],i)=>{
