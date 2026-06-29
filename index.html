@@ -295,34 +295,33 @@ function teamObj(t,seed){return t?{name:t.name,flag:t.flag||'',seed:seed||''}:nu
 
 function syncR32FromGroups(){
   if(!knockout.r32||knockout.r32.length!==16)return;
-  const q={};
-  Object.keys(GROUPS).forEach(g=>{const st=computeStandings(g);q[g]={first:st[0],second:st[1]};});
-  const thirds=getThirds();
-  let ti=0;
-  function nt(label){const t=thirds[ti++];return t&&t.p>0?teamObj(t,label):null;}
 
-  const seeds=[
-    [teamObj(q.E.first,'Group E — 1st'),   teamObj(q.E.second,'Group E — 2nd')],  // Germany vs Paraguay
-    [teamObj(q.I.first,'Group I — 1st'),   teamObj(q.I.second,'Group I — 2nd')],  // France vs Sweden
-    [nt('3rd place'),                       teamObj(q.B.second,'Group B — 2nd')],  // S.Africa vs Canada
-    [teamObj(q.F.first,'Group F — 1st'),   nt('3rd place')],                       // Netherlands vs Morocco
-    [teamObj(q.K.first,'Group K — 1st'),   teamObj(q.L.second,'Group L — 2nd')],  // Portugal vs Croatia
-    [teamObj(q.H.first,'Group H — 1st'),   teamObj(q.J.second,'Group J — 2nd')],  // Spain vs Austria
-    [teamObj(q.D.first,'Group D — 1st'),   teamObj(q.B.first,'Group B — 1st')],   // USA vs Bosnia & Herz.
-    [teamObj(q.G.first,'Group G — 1st'),   teamObj(q.I.second,'Group I — 2nd')],  // Belgium vs Senegal
-    [teamObj(q.C.first,'Group C — 1st'),   teamObj(q.F.second,'Group F — 2nd')],  // Brazil vs Japan
-    [teamObj(q.E.second,'Group E — 2nd'),  teamObj(q.I.second,'Group I — 2nd')],  // Ivory Coast vs Norway
-    [teamObj(q.A.first,'Group A — 1st'),   nt('3rd place')],                       // Mexico vs Ecuador
-    [teamObj(q.L.first,'Group L — 1st'),   nt('3rd place')],                       // England vs DR Congo
-    [teamObj(q.J.first,'Group J — 1st'),   nt('3rd place')],                       // Argentina vs Cape Verde
-    [teamObj(q.D.second,'Group D — 2nd'),  teamObj(q.G.second,'Group G — 2nd')],  // Australia vs Egypt
-    [teamObj(q.B.first,'Group B — 1st'),   nt('3rd place')],                       // Switzerland vs Algeria
-    [teamObj(q.K.second,'Group K — 2nd'),  teamObj(q.L.second,'Group L — 2nd')]   // Colombia vs Ghana
+  // Hardcoded official FIFA 2026 R32 matchups — teams and seed labels fixed
+  const R32=[
+    {h:{name:'Germany',flag:'🇩🇪',seed:'Group E — 1st'},   a:{name:'Paraguay',flag:'🇵🇾',seed:'Group E — 2nd'}},
+    {h:{name:'France',flag:'🇫🇷',seed:'Group I — 1st'},    a:{name:'Sweden',flag:'🇸🇪',seed:'Group I — 2nd'}},
+    {h:{name:'South Africa',flag:'🇿🇦',seed:'3rd place'},   a:{name:'Canada',flag:'🇨🇦',seed:'Group B — 2nd'}},
+    {h:{name:'Netherlands',flag:'🇳🇱',seed:'Group F — 1st'},a:{name:'Morocco',flag:'🇲🇦',seed:'3rd place'}},
+    {h:{name:'Portugal',flag:'🇵🇹',seed:'Group K — 1st'},   a:{name:'Croatia',flag:'🇭🇷',seed:'Group L — 2nd'}},
+    {h:{name:'Spain',flag:'🇪🇸',seed:'Group H — 1st'},      a:{name:'Austria',flag:'🇦🇹',seed:'Group J — 2nd'}},
+    {h:{name:'USA',flag:'🇺🇸',seed:'Group D — 1st'},        a:{name:'Bosnia & Herz.',flag:'🇧🇦',seed:'Group B — 1st'}},
+    {h:{name:'Belgium',flag:'🇧🇪',seed:'Group G — 1st'},    a:{name:'Senegal',flag:'🇸🇳',seed:'Group I — 2nd'}},
+    {h:{name:'Brazil',flag:'🇧🇷',seed:'Group C — 1st'},     a:{name:'Japan',flag:'🇯🇵',seed:'Group F — 2nd'}},
+    {h:{name:'Ivory Coast',flag:'🇨🇮',seed:'Group E — 2nd'},a:{name:'Norway',flag:'🇳🇴',seed:'Group I — 2nd'}},
+    {h:{name:'Mexico',flag:'🇲🇽',seed:'Group A — 1st'},     a:{name:'Ecuador',flag:'🇪🇨',seed:'3rd place'}},
+    {h:{name:'England',flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',seed:'Group L — 1st'},    a:{name:'DR Congo',flag:'🇨🇩',seed:'3rd place'}},
+    {h:{name:'Argentina',flag:'🇦🇷',seed:'Group J — 1st'},  a:{name:'Cape Verde',flag:'🇨🇻',seed:'3rd place'}},
+    {h:{name:'Australia',flag:'🇦🇺',seed:'Group D — 2nd'},  a:{name:'Egypt',flag:'🇪🇬',seed:'Group G — 2nd'}},
+    {h:{name:'Switzerland',flag:'🇨🇭',seed:'Group B — 1st'},a:{name:'Algeria',flag:'🇩🇿',seed:'3rd place'}},
+    {h:{name:'Colombia',flag:'🇨🇴',seed:'Group K — 2nd'},   a:{name:'Ghana',flag:'🇬🇭',seed:'Group L — 2nd'}}
   ];
 
-  seeds.forEach(([h,a],i)=>{
-    knockout.r32[i].h=h;
-    knockout.r32[i].a=a;
+  R32.forEach((m,i)=>{
+    // Only set team if no score has been entered yet in that match (preserve manual entries)
+    if(knockout.r32[i].hs===null && knockout.r32[i].as===null){
+      knockout.r32[i].h=m.h;
+      knockout.r32[i].a=m.a;
+    }
   });
   propagateWinners();
 }
