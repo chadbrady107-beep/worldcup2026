@@ -78,29 +78,32 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
 
 /* BRACKET */
 .bkt-wrap{overflow-x:auto;padding-bottom:16px;}
-.bkt-grid{display:flex;gap:0;min-width:1000px;}
-.bkt-col{display:flex;flex-direction:column;width:185px;flex-shrink:0;padding:0 5px;}
-.bkt-rtitle{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:.6px;text-align:center;margin-bottom:10px;text-transform:uppercase;}
-.bm{background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;font-size:11px;margin-bottom:6px;}
+.bkt-grid{display:flex;gap:0;min-width:1050px;align-items:stretch;}
+
+/* Each column is a flex column where items share space equally */
+.bkt-col{display:flex;flex-direction:column;width:190px;flex-shrink:0;padding:0 5px;}
+.bkt-rtitle{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:.6px;text-align:center;margin-bottom:8px;text-transform:uppercase;flex-shrink:0;}
+
+/* Slot = a flex cell that takes equal space in its column, centers the match card vertically */
+.bkt-slot{display:flex;flex-direction:column;justify-content:center;flex:1;}
+
+.bm{background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;font-size:11px;}
 .bm.has-winner{border-color:rgba(200,168,75,0.3);}
-.bt{display:flex;align-items:center;gap:5px;padding:4px 8px;min-height:34px;border-bottom:1px solid var(--border);position:relative;}
+.bt{display:flex;align-items:center;gap:5px;padding:5px 8px;min-height:36px;border-bottom:1px solid var(--border);}
 .bt:last-child{border-bottom:none;}
 .bt.win{background:rgba(200,168,75,0.1);}
 .bt.win .bt-name{color:var(--gold2);font-weight:600;}
 .bt.loss{opacity:0.4;}
 .bt-flag{flex-shrink:0;font-size:13px;line-height:1;}
 .bt-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;}
-.bt-name{font-size:11px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.2;}
-.bt-name.dim{color:var(--text2);}
+.bt-name{font-size:11px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.3;}
 .bt-seed{font-size:9px;color:var(--text3);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .bt-seed.gold{color:rgba(200,168,75,0.7);}
 .bt-score-wrap{display:flex;align-items:center;gap:2px;flex-shrink:0;}
 .bt-score{width:26px;height:22px;background:var(--bg3);border:1px solid var(--border2);border-radius:4px;color:var(--text);font-size:11px;font-weight:700;text-align:center;outline:none;padding:0;}
 .bt-score:focus{border-color:var(--gold);}
-.bt-score:disabled{opacity:0.25;cursor:default;}
-.bt-tbd{color:var(--text3);font-style:italic;font-size:10px;padding:6px 8px;min-height:34px;display:flex;align-items:center;border-bottom:1px solid var(--border);}
+.bt-tbd{color:var(--text3);font-style:italic;font-size:10px;padding:8px;min-height:36px;display:flex;align-items:center;border-bottom:1px solid var(--border);}
 .bt-tbd:last-child{border-bottom:none;}
-.bt-tbd-seed{font-size:9px;color:var(--text3);display:block;margin-top:1px;font-style:normal;}
 .note{font-size:11px;color:var(--text3);margin-top:14px;padding-top:12px;border-top:1px solid var(--border);}
 ::-webkit-scrollbar{width:5px;height:5px;}
 ::-webkit-scrollbar-track{background:var(--bg2);}
@@ -514,19 +517,25 @@ function renderBracket(){
     return `<div class="bm${hasScore?' has-winner':''}">${hRow}${aRow}</div>`;
   }
 
-  let html='<div class="bkt-grid">';
+  // Each column has N slots; each slot takes equal flex space and centers its match card.
+  // R32=16 slots, R16=8, QF=4, SF=2, Final=1
+  // To align correctly, each round has the same total number of "base slots" = 16
+  // R16 match occupies 2 base slots, QF=4, SF=8, Final=16
+  // We achieve this by giving each slot a flex value equal to how many R32 slots it spans.
+
+  const slotSpan={r32:1,r16:2,qf:4,sf:8,final:16};
+
+  let html='<div class="bkt-grid" style="height:' + (16*80) + 'px;">';
   ROUND_KEYS.forEach(r=>{
     const matches=knockout[r]||[];
-    const top=topOffset[r];
-    const gap=gapBetween[r];
-    html+=`<div class="bkt-col">
+    const span=slotSpan[r];
+    html+=`<div class="bkt-col" style="height:100%;">
       <div class="bkt-rtitle">${ROUND_LABELS[r]}</div>
-      <div style="height:${top}px;flex-shrink:0;"></div>`;
+      <div style="display:flex;flex-direction:column;flex:1;">`;
     matches.forEach((m,i)=>{
-      html+=renderMatch(m,r,i);
-      if(i<matches.length-1) html+=`<div style="height:${gap}px;flex-shrink:0;"></div>`;
+      html+=`<div class="bkt-slot" style="flex:${span};">${renderMatch(m,r,i)}</div>`;
     });
-    html+='</div>';
+    html+=`</div></div>`;
   });
   html+='</div>';
   html+=`<p class="note">Winners auto-advance when a score is entered. For matches decided by penalties, enter the score after extra time and set the winning team's score one higher.</p>`;
