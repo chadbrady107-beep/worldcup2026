@@ -447,32 +447,53 @@ function renderBracket(){
   const c=document.getElementById('bracket-container');
   if(!c)return;
 
-  const spacingTop={r32:0,r16:19,qf:57,sf:133,final:285};
-  const spacingBetween={r32:6,r16:44,qf:108,sf:234,final:0};
+  // Each match card is ~68px tall (2 rows of 34px each)
+  // Gap between matches within same round
+  const MATCH_H = 68;
+  const GAP_R32 = 6;
+  // For each subsequent round, the gap doubles and top offset centers the match between its two feeders
+  // R32: 16 matches, gap=6
+  // R16: 8 matches, gap = MATCH_H + GAP_R32 = 74, top = (MATCH_H + GAP_R32) / 2 = 37
+  // QF:  4 matches, gap = 2*(MATCH_H + 74) + 74... easier to just compute:
+  // slot height per round = MATCH_H + gap
+  // R32 slot = 68+6 = 74
+  // R16 slot = 74*2 = 148, gap = 148-68 = 80, topOffset = 74/2 - 34 + ... 
+  // Simpler: topOffset[r] = slotHeight[prevRound]/2 - MATCH_H/2, gap[r] = slotHeight[prevRound]*2 - MATCH_H
 
-  function renderTeamRow(team, score, round, matchIdx, side, oppScore, isR32, seedLabel){
+  const slotR32 = MATCH_H + GAP_R32; // 74
+  const slotR16 = slotR32 * 2;       // 148
+  const slotQF  = slotR16 * 2;       // 296
+  const slotSF  = slotQF  * 2;       // 592
+
+  const topOffset = {
+    r32: 0,
+    r16: slotR32/2 - MATCH_H/2,      // 37 - 34 = 3
+    qf:  slotR16/2 - MATCH_H/2,      // 74 - 34 = 40
+    sf:  slotQF /2 - MATCH_H/2,      // 148 - 34 = 114
+    final: slotSF/2 - MATCH_H/2      // 296 - 34 = 262
+  };
+  const gapBetween = {
+    r32: GAP_R32,
+    r16: slotR16 - MATCH_H,          // 148 - 68 = 80
+    qf:  slotQF  - MATCH_H,          // 296 - 68 = 228
+    sf:  slotSF  - MATCH_H,          // 592 - 68 = 524
+    final: 0
+  };
+
+  function renderTeamRow(team, score, round, matchIdx, side, oppScore){
     const hasScore = score !== null && oppScore !== null;
     const isWinner = hasScore && parseInt(score) > parseInt(oppScore);
     const isLoser  = hasScore && parseInt(score) < parseInt(oppScore);
     const hasTeam  = team && team.name;
+    const displaySeed = hasTeam ? (team.seed || '') : '';
 
-    // In R32, show seed label if team not yet known; once known show their actual seed
-    const displaySeed = hasTeam ? (team.seed || seedLabel || '') : (seedLabel || '');
-    const isTBD = !hasTeam;
-
-    if(isTBD){
-      return `<div class="bt-tbd">
-        <div>
-          <span>TBD</span>
-          ${displaySeed ? `<span class="bt-tbd-seed">${displaySeed}</span>` : ''}
-        </div>
-      </div>`;
+    if(!hasTeam){
+      return `<div class="bt-tbd"><div><span>TBD</span></div></div>`;
     }
-
     return `<div class="bt${isWinner?' win':''}${isLoser?' loss':''}">
       <span class="bt-flag">${team.flag||''}</span>
       <div class="bt-info">
-        <span class="bt-name${!hasTeam?' dim':''}">${team.name}</span>
+        <span class="bt-name">${team.name}</span>
         ${displaySeed ? `<span class="bt-seed${isWinner?' gold':''}">${displaySeed}</span>` : ''}
       </div>
       <div class="bt-score-wrap">
@@ -488,23 +509,22 @@ function renderBracket(){
     const hs = m.hs !== null ? m.hs : null;
     const as = m.as !== null ? m.as : null;
     const hasScore = hs !== null && as !== null;
-    const isR32 = round === 'r32';
-    const hSeed = isR32 ? R32_SEEDS[matchIdx][0] : '';
-    const aSeed = isR32 ? R32_SEEDS[matchIdx][1] : '';
-    const hRow = renderTeamRow(m.h, hs, round, matchIdx, 'h', as, isR32, hSeed);
-    const aRow = renderTeamRow(m.a, as, round, matchIdx, 'a', hs, isR32, aSeed);
+    const hRow = renderTeamRow(m.h, hs, round, matchIdx, 'h', as);
+    const aRow = renderTeamRow(m.a, as, round, matchIdx, 'a', hs);
     return `<div class="bm${hasScore?' has-winner':''}">${hRow}${aRow}</div>`;
   }
 
   let html='<div class="bkt-grid">';
   ROUND_KEYS.forEach(r=>{
     const matches=knockout[r]||[];
+    const top=topOffset[r];
+    const gap=gapBetween[r];
     html+=`<div class="bkt-col">
       <div class="bkt-rtitle">${ROUND_LABELS[r]}</div>
-      <div style="height:${spacingTop[r]}px;flex-shrink:0;"></div>`;
+      <div style="height:${top}px;flex-shrink:0;"></div>`;
     matches.forEach((m,i)=>{
       html+=renderMatch(m,r,i);
-      if(i<matches.length-1)html+=`<div style="height:${spacingBetween[r]}px;flex-shrink:0;"></div>`;
+      if(i<matches.length-1) html+=`<div style="height:${gap}px;flex-shrink:0;"></div>`;
     });
     html+='</div>';
   });
